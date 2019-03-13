@@ -18,6 +18,14 @@ const FEATURES: [GroundFeature; 1] = [GroundFeature::FOREST];
 
 const WITH_TREES: [GroundType; 2] = [GroundType::GRASSLAND, GroundType::PLAINS];
 
+const WITH_HILLS: [GroundType; 5] = [
+  GroundType::GRASSLAND,
+  GroundType::PLAINS,
+  GroundType::TUNDRA,
+  GroundType::DESERT,
+  GroundType::SNOW,
+];
+
 const SIDES: [Side; 3] = [Side::SOUTH_EAST, Side::SOUTH_WEST, Side::WEST];
 
 pub fn generate(settings: &Settings) -> Vec<Vec<Tile>> {
@@ -34,7 +42,7 @@ pub fn generate(settings: &Settings) -> Vec<Vec<Tile>> {
         } else {
           None
         },
-        hill: rand::random(),
+        hill: WITH_HILLS.iter().any(|val| val == t) && rand::random::<f64>() >= 0.75,
         discovered: true,
         visible: true,
         rivers: SIDES
