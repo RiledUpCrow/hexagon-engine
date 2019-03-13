@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, PartialEq)]
 pub enum GroundType {
   GRASSLAND,
   PLAINS,

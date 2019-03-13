@@ -1,16 +1,15 @@
 extern crate hyper;
 extern crate serde;
 
+use generate_map::generate;
 use hyper::rt::Future;
 use hyper::service::service_fn;
 use hyper::{Body, Request, Response, Server};
+use settings::Settings;
 
 mod generate_map;
-mod ground_type;
 mod settings;
 mod tile;
-
-use settings::Settings;
 
 const SETTINGS: Settings = Settings {
     width: 128,
@@ -18,10 +17,10 @@ const SETTINGS: Settings = Settings {
 };
 
 fn main() {
-    let addr = ([127, 0, 0, 1], 3000).into();
+    let addr = ([127, 0, 0, 1], 8080).into();
 
     let handler = |_req: Request<Body>| -> Result<Response<Body>, hyper::Error> {
-        let tiles = generate_map::log(&SETTINGS);
+        let tiles = generate(&SETTINGS);
         let json = serde_json::to_string(&tiles).unwrap();
         Ok(Response::new(Body::from(json)))
     };
