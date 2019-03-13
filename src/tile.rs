@@ -1,6 +1,8 @@
+use super::ground_type::GroundType;
 use serde::Serialize;
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Tile {
-  pub gt: String,
+  pub ground_type: GroundType,
 }

@@ -6,6 +6,7 @@ use hyper::service::service_fn;
 use hyper::{Body, Request, Response, Server};
 
 mod generate_map;
+mod ground_type;
 mod settings;
 mod tile;
 
