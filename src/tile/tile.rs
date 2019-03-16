@@ -6,10 +6,10 @@ use serde::Serialize;
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Tile {
-  pub ground_type: GroundType,
-  pub ground_feature: Option<GroundFeature>,
-  pub hill: bool,
-  pub discovered: bool,
-  pub visible: bool,
-  pub rivers: Vec<Side>,
+    pub ground_type: GroundType,
+    pub ground_feature: Option<GroundFeature>,
+    pub hill: bool,
+    pub discovered: bool,
+    pub visible: bool,
+    pub rivers: Vec<Side>,
 }

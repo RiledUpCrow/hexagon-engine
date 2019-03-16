@@ -16,7 +16,7 @@ action "Login" {
 action "Style" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   needs = ["Build"]
-  args = "run --rm co0sh/hexagon-engine:dev cargo fmt --check"
+  args = "run --rm co0sh/hexagon-engine:dev cargo fmt -- --check"
 }
 
 action "Test" {
