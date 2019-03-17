@@ -2,6 +2,7 @@ extern crate serde;
 extern crate websocket;
 
 use generate_map::generate;
+use message::{message::Message as EngineMessage, register_data::RegisterData};
 use settings::Settings;
 use std::io::stdin;
 use std::sync::mpsc::channel;
@@ -11,6 +12,7 @@ use websocket::client::ClientBuilder;
 use websocket::{Message, OwnedMessage};
 
 mod generate_map;
+mod message;
 mod settings;
 mod tile;
 
@@ -100,6 +102,17 @@ fn main() {
             }
         }
     });
+
+    // register the server
+    {
+        let message = EngineMessage::Register(RegisterData {
+            id: String::from("hehe"),
+            admin_token: String::from("hoho"),
+            version: String::from("0.1.0"),
+        });
+        let text = serde_json::to_string(&message).unwrap();
+        let _ = tx.send(OwnedMessage::Text(text));
+    }
 
     loop {
         let mut input = String::new();
