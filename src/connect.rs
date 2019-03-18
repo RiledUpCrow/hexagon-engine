@@ -2,12 +2,13 @@ use super::message::{message::Message as EngineMessage, register_data::RegisterD
 use std::sync::mpsc::channel;
 use std::thread;
 use websocket::client::ClientBuilder;
+use websocket::result::WebSocketError;
 use websocket::{Message, OwnedMessage};
 
-pub fn connect(client_builder: &mut ClientBuilder) {
+pub fn connect(client_builder: &mut ClientBuilder) -> Result<(), WebSocketError> {
     println!("Connecting");
 
-    let client = client_builder.connect_insecure().unwrap();
+    let client = client_builder.connect_insecure()?;
 
     println!("Successfully connected");
 
@@ -96,4 +97,6 @@ pub fn connect(client_builder: &mut ClientBuilder) {
 
     // We're exiting
     println!("Exited");
+
+    Ok(())
 }
