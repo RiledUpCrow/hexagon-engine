@@ -9,7 +9,7 @@ mod message;
 mod settings;
 mod tile;
 
-const CONNECTION: &'static str = "ws://localhost";
+const CONNECTION: &'static str = "ws://localhost/socket";
 
 fn main() {
     let mut client = ClientBuilder::new(CONNECTION)
