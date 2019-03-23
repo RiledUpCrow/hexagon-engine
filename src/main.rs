@@ -1,7 +1,9 @@
+extern crate futures;
 extern crate serde;
+extern crate tokio;
 extern crate websocket;
 
-use websocket::client::ClientBuilder;
+use std::env;
 
 mod connect;
 mod generate_map;
@@ -9,17 +11,11 @@ mod message;
 mod settings;
 mod tile;
 
-const CONNECTION: &'static str = "ws://localhost/socket";
-
 fn main() {
-    let mut client = ClientBuilder::new(CONNECTION)
-        .unwrap()
-        .add_protocol("rust-websocket");
-
+    let host = env::var("TWA_HOST").unwrap_or("wss://theworldanew.com/socket".to_owned());
     loop {
-        let _ = connect::connect(&mut client);
+        let _ = connect::connect(&host);
         println!("Connection dropped, repeating in 5s");
         std::thread::sleep(std::time::Duration::from_secs(5));
-        println!("Reconnecting!");
     }
 }

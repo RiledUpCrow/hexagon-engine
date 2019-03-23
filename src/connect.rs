@@ -1,99 +1,51 @@
 use super::message::{message::Message as EngineMessage, register_data::RegisterData};
-use std::sync::mpsc::channel;
+use futures::future::Future;
+use futures::sink::Sink;
+use futures::stream::Stream;
+use futures::sync::mpsc;
 use std::thread;
-use websocket::client::ClientBuilder;
+use tokio::runtime::current_thread::Builder;
 use websocket::result::WebSocketError;
-use websocket::{Message, OwnedMessage};
+use websocket::{ClientBuilder, OwnedMessage};
 
-pub fn connect(client_builder: &mut ClientBuilder) -> Result<(), WebSocketError> {
+pub fn connect(host: &str) -> Result<(), WebSocketError> {
+    let client = ClientBuilder::new(host)?.add_protocol("rust-websocket");
+
     println!("Connecting");
+    let mut runtime = Builder::new().build().unwrap();
 
-    let client = client_builder.connect_insecure()?;
+    let (usr_msg, stdin_ch) = mpsc::channel(0);
+    thread::spawn(move || {
+        let mut sink = usr_msg.wait();
 
-    println!("Successfully connected");
-
-    let (mut receiver, mut sender) = client.split().unwrap();
-
-    let (tx, rx) = channel();
-
-    let tx_1 = tx.clone();
-
-    let send_loop = thread::spawn(move || {
-        loop {
-            // Send loop
-            let message = match rx.recv() {
-                Ok(m) => m,
-                Err(e) => {
-                    println!("Send Loop: {:?}", e);
-                    return;
-                }
-            };
-            match message {
-                OwnedMessage::Close(_) => {
-                    let _ = sender.send_message(&message);
-                    // If it's a close message, just send it and then return.
-                    return;
-                }
-                _ => (),
-            }
-            // Send the message
-            match sender.send_message(&message) {
-                Ok(()) => (),
-                Err(e) => {
-                    println!("Send Loop: {:?}", e);
-                    let _ = sender.send_message(&Message::close());
-                    return;
-                }
-            }
-        }
-    });
-
-    let receive_loop = thread::spawn(move || {
-        // Receive loop
-        for message in receiver.incoming_messages() {
-            let message = match message {
-                Ok(m) => m,
-                Err(e) => {
-                    println!("Receive Loop Error With Close: {:?}", e);
-                    let _ = tx_1.send(OwnedMessage::Close(None));
-                    return;
-                }
-            };
-            match message {
-                OwnedMessage::Close(_) => {
-                    // Got a close message, so send a close message and return
-                    let _ = tx_1.send(OwnedMessage::Close(None));
-                    return;
-                }
-                OwnedMessage::Ping(data) => {
-                    match tx_1.send(OwnedMessage::Pong(data)) {
-                        // Send a pong in response
-                        Ok(()) => (),
-                        Err(e) => {
-                            println!("Receive Loop Error: {:?}", e);
-                            return;
-                        }
-                    }
-                }
-                // Say what we received
-                _ => println!("Receive Loop Message: {:?}", message),
-            }
-        }
-    });
-
-    // register the server
-    {
+        // register the server
         let message = EngineMessage::Register(RegisterData {
             id: String::from("hehe"),
             admin_token: String::from("hoho"),
             version: String::from("0.1.0"),
         });
         let text = serde_json::to_string(&message).unwrap();
-        let _ = tx.send(OwnedMessage::Text(text));
-    }
+        let om = OwnedMessage::Text(text);
+        let _ = sink.send(om);
+        println!("Register sent");
+    });
 
-    let _ = receive_loop.join();
-    let _ = send_loop.join();
+    let runner = client.async_connect(None).and_then(|(duplex, _)| {
+        let (sink, stream) = duplex.split();
+        stream
+            .filter_map(|message| {
+                println!("Received Message: {:?}", message);
+                match message {
+                    OwnedMessage::Close(e) => Some(OwnedMessage::Close(e)),
+                    OwnedMessage::Ping(d) => Some(OwnedMessage::Pong(d)),
+                    _ => None,
+                }
+            })
+            .select(stdin_ch.map_err(|_| WebSocketError::NoDataAvailable))
+            .forward(sink)
+    });
+
+    runtime.block_on(runner)?;
 
     // We're exiting
     println!("Exited");
