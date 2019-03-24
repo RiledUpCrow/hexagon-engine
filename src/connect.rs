@@ -1,4 +1,5 @@
 use super::message::{message::Message as EngineMessage, register_data::RegisterData};
+use super::parse_message;
 use futures::future::Future;
 use futures::sink::Sink;
 use futures::stream::Stream;
@@ -38,6 +39,9 @@ pub fn connect(host: &str) -> Result<(), WebSocketError> {
                 match message {
                     OwnedMessage::Close(e) => Some(OwnedMessage::Close(e)),
                     OwnedMessage::Ping(d) => Some(OwnedMessage::Pong(d)),
+                    OwnedMessage::Text(t) => parse_message::parse_message(&t)
+                        .map(|m| OwnedMessage::Text(m))
+                        .ok(),
                     _ => None,
                 }
             })

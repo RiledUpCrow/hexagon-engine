@@ -10,6 +10,7 @@ mod generate_map;
 mod message;
 mod settings;
 mod tile;
+mod parse_message;
 
 fn main() {
     let host = env::var("TWA_HOST").unwrap_or("wss://theworldanew.com/socket".to_owned());
