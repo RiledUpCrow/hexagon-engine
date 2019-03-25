@@ -8,9 +8,9 @@ use std::env;
 mod connect;
 mod generate_map;
 mod message;
+mod parse_message;
 mod settings;
 mod tile;
-mod parse_message;
 
 fn main() {
     let host = env::var("TWA_HOST").unwrap_or("wss://theworldanew.com/socket".to_owned());
