@@ -1,5 +1,7 @@
-use serde::Deserialize;
+use super::client_message::ClientMessage;
+use super::game_settings::GameSettings;
 use super::version_data::VersionData;
+use serde::Deserialize;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -11,5 +13,7 @@ pub struct Request {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", tag = "type", content = "data")]
 pub enum RequestContent {
-    Version(VersionData)
+    Version(VersionData),
+    CreateGame(GameSettings),
+    ClientMessage(ClientMessage),
 }

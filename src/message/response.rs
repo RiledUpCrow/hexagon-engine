@@ -1,3 +1,4 @@
+use super::client_response::ClientResponse;
 use super::register_data::RegisterData;
 use serde::Serialize;
 
@@ -12,4 +13,6 @@ pub struct Response {
 #[serde(rename_all = "camelCase", tag = "type", content = "data")]
 pub enum ResponseContent {
     Register(RegisterData),
+    Success,
+    ClientResponse(ClientResponse),
 }
