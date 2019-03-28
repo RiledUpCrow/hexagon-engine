@@ -1,4 +1,5 @@
 use super::generate_map;
+use super::identity::Identity;
 use super::message::{
     client_message::ClientMessage,
     client_response::ClientResponse,
@@ -10,7 +11,7 @@ use super::message::{
 use super::settings::Settings;
 use std::io::Error;
 
-pub fn parse_message(msg: &str) -> Result<String, Error> {
+pub fn parse_message(msg: &str, identity: &Identity) -> Result<String, Error> {
     let request = serde_json::from_str::<Request>(msg)?;
     let data = request.content;
     let response = match data {
@@ -18,8 +19,8 @@ pub fn parse_message(msg: &str) -> Result<String, Error> {
             id: request.id,
             content: ResponseContent::Register(RegisterData {
                 version: String::from("0.1.0"),
-                id: String::from("hehe"),
-                admin_token: String::from("hoho"),
+                id: identity.id.to_owned(),
+                admin_token: identity.admin_token.to_owned(),
             }),
         },
         RequestContent::CreateGame(_) => Response {

@@ -1,3 +1,4 @@
+use super::engine::Engine;
 use super::parse_message;
 use futures::future::Future;
 use futures::sink::Sink;
@@ -8,7 +9,7 @@ use tokio::runtime::current_thread::Builder;
 use websocket::result::WebSocketError;
 use websocket::{ClientBuilder, OwnedMessage};
 
-pub fn connect(host: &str) -> Result<(), WebSocketError> {
+pub fn connect(host: &str, engine: &mut Engine) -> Result<(), WebSocketError> {
     let client = ClientBuilder::new(host)?.add_protocol("rust-websocket");
 
     println!("Connecting");
@@ -27,7 +28,7 @@ pub fn connect(host: &str) -> Result<(), WebSocketError> {
                 OwnedMessage::Close(e) => Some(OwnedMessage::Close(e)),
                 OwnedMessage::Ping(d) => Some(OwnedMessage::Pong(d)),
                 OwnedMessage::Text(t) => Some(
-                    parse_message::parse_message(&t)
+                    parse_message::parse_message(&t, &engine.identity)
                         .map(|m| OwnedMessage::Text(m))
                         .unwrap_or_else(|err| {
                             dbg!(err);
