@@ -28,7 +28,7 @@ pub fn connect(host: &str, engine: &mut Engine) -> Result<(), WebSocketError> {
                 OwnedMessage::Close(e) => Some(OwnedMessage::Close(e)),
                 OwnedMessage::Ping(d) => Some(OwnedMessage::Pong(d)),
                 OwnedMessage::Text(t) => Some(
-                    parse_message::parse_message(&t, &engine.identity)
+                    parse_message::parse_message(&t, &engine)
                         .map(|m| OwnedMessage::Text(m))
                         .unwrap_or_else(|err| {
                             dbg!(err);

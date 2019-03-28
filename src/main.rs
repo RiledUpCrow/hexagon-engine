@@ -20,7 +20,7 @@ const VERSION: &str = "0.1.0";
 
 fn main() {
     println!("Starting Engine version {}", VERSION);
-    let mut engine = Engine::new().unwrap();
+    let mut engine = Engine::new(VERSION).unwrap();
     let host = env::var("TWA_HOST").unwrap_or("wss://theworldanew.com/socket".to_owned());
     loop {
         let _ = connect::connect(&host, &mut engine);

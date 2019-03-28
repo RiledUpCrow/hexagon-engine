@@ -5,10 +5,11 @@ use std::{env, fs, io, path::PathBuf, str::FromStr};
 pub struct Engine {
     pub game_manager: GameManager,
     pub identity: Identity,
+    pub version: String,
 }
 
 impl Engine {
-    pub fn new() -> Result<Engine, EngineError> {
+    pub fn new(version: &str) -> Result<Engine, EngineError> {
         let url = env::var("TWA_DATA").unwrap_or(String::from("./engine-data"));
 
         let mut path = PathBuf::from_str(&url)?;
@@ -37,6 +38,7 @@ impl Engine {
         Ok(Engine {
             game_manager: GameManager::new(),
             identity,
+            version: String::from(version),
         })
     }
 }
