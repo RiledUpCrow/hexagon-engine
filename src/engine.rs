@@ -20,6 +20,7 @@ impl Engine {
             .map(|string| serde_json::from_str::<Identity>(&string))
             .or_else(|err| {
                 if let io::ErrorKind::NotFound = err.kind() {
+                    println!("Identity not found, generating a new one...");
                     let id = Identity::generate();
                     let st = serde_json::to_string_pretty(&id)?;
                     path.parent().map(|dir| fs::create_dir_all(&dir));
@@ -29,6 +30,9 @@ impl Engine {
                     Err(err)
                 }
             })??;
+
+        println!("Engine name: {}", &identity.name);
+        println!("Engine admin token: {}", &identity.admin_token);
 
         Ok(Engine {
             game_manager: GameManager::new(),

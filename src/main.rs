@@ -16,9 +16,12 @@ mod parse_message;
 mod settings;
 mod tile;
 
+const VERSION: &str = "0.1.0";
+
 fn main() {
-    let host = env::var("TWA_HOST").unwrap_or("wss://theworldanew.com/socket".to_owned());
+    println!("Starting Engine version {}", VERSION);
     let mut engine = Engine::new().unwrap();
+    let host = env::var("TWA_HOST").unwrap_or("wss://theworldanew.com/socket".to_owned());
     loop {
         let _ = connect::connect(&host, &mut engine);
         println!("Connection dropped, repeating in 5s");

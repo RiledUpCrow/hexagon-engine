@@ -12,7 +12,7 @@ use websocket::{ClientBuilder, OwnedMessage};
 pub fn connect(host: &str, engine: &mut Engine) -> Result<(), WebSocketError> {
     let client = ClientBuilder::new(host)?.add_protocol("rust-websocket");
 
-    println!("Connecting");
+    println!("Connecting to {}", host);
     let mut runtime = Builder::new().build().unwrap();
 
     let (usr_msg, stdin_ch) = mpsc::channel(0);
@@ -42,9 +42,6 @@ pub fn connect(host: &str, engine: &mut Engine) -> Result<(), WebSocketError> {
     });
 
     runtime.block_on(runner)?;
-
-    // We're exiting
-    println!("Exited");
 
     Ok(())
 }

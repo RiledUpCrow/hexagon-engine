@@ -15,18 +15,24 @@ pub fn parse_message(msg: &str, identity: &Identity) -> Result<String, Error> {
     let request = serde_json::from_str::<Request>(msg)?;
     let data = request.content;
     let response = match data {
-        RequestContent::Version(_) => Response {
-            id: request.id,
-            content: ResponseContent::Register(RegisterData {
-                version: String::from("0.1.0"),
-                id: identity.id.to_owned(),
-                admin_token: identity.admin_token.to_owned(),
-            }),
-        },
-        RequestContent::CreateGame(_) => Response {
-            id: request.id,
-            content: ResponseContent::Success,
-        },
+        RequestContent::Version(data) => {
+            println!("Server version {}", &data.version);
+            Response {
+                id: request.id,
+                content: ResponseContent::Register(RegisterData {
+                    version: String::from("0.1.0"),
+                    id: identity.id.to_owned(),
+                    admin_token: identity.admin_token.to_owned(),
+                }),
+            }
+        }
+        RequestContent::CreateGame(_) => {
+            println!("Creating a new game");
+            Response {
+                id: request.id,
+                content: ResponseContent::Success,
+            }
+        }
         RequestContent::ClientMessage(client_msg) => match client_msg {
             ClientMessage::GetData => Response {
                 id: request.id,
