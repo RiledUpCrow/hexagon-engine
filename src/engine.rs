@@ -1,6 +1,9 @@
 use super::game_manager::GameManager;
 use super::identity::Identity;
-use std::{env, fs, io, path::PathBuf, str::FromStr};
+use std::{
+    fs, io,
+    path::{Path, PathBuf},
+};
 
 pub struct Engine {
     pub game_manager: GameManager,
@@ -9,10 +12,8 @@ pub struct Engine {
 }
 
 impl Engine {
-    pub fn new(version: &str) -> Result<Engine, EngineError> {
-        let url = env::var("TWA_DATA").unwrap_or(String::from("./engine-data"));
-
-        let mut path = PathBuf::from_str(&url)?;
+    pub fn new(version: &str, data_url: &Path) -> Result<Engine, EngineError> {
+        let mut path = PathBuf::from(data_url);
         path.push("identity");
         path.set_extension("json");
         let path = path;
@@ -36,7 +37,7 @@ impl Engine {
         println!("Engine admin token: {}", &identity.admin_token);
 
         Ok(Engine {
-            game_manager: GameManager::new(),
+            game_manager: GameManager::new(data_url)?,
             identity,
             version: String::from(version),
         })

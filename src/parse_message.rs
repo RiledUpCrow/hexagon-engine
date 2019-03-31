@@ -11,7 +11,7 @@ use super::message::{
 use super::settings::Settings;
 use std::io::Error;
 
-pub fn parse_message(msg: &str, engine: &Engine) -> Result<String, Error> {
+pub fn parse_message(msg: &str, engine: &mut Engine) -> Result<String, Error> {
     let request = serde_json::from_str::<Request>(msg)?;
     let data = request.content;
     let response = match data {
@@ -28,8 +28,9 @@ pub fn parse_message(msg: &str, engine: &Engine) -> Result<String, Error> {
                 }),
             }
         }
-        RequestContent::CreateGame(_) => {
+        RequestContent::CreateGame(settings) => {
             println!("Creating a new game");
+            engine.game_manager.create_game(&settings);
             Response {
                 id: request.id,
                 content: ResponseContent::Success,

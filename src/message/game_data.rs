@@ -1,7 +1,7 @@
 use super::super::tile::tile::Tile;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GameData {
     pub width: u32,
