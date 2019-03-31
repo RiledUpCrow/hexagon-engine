@@ -4,8 +4,8 @@ use serde::Deserialize;
 #[serde(rename_all = "camelCase")]
 #[allow(dead_code)]
 pub struct GameSettings {
-    id: String,
-    max_players: u32,
-    map_width: u32,
-    map_height: u32,
+    pub id: String,
+    pub max_players: u32,
+    pub map_width: u32,
+    pub map_height: u32,
 }

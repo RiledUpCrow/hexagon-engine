@@ -1,5 +1,9 @@
 use super::game::Game;
-use super::message::game_settings::GameSettings;
+use super::message::{
+    client_message::ClientMessage, client_response::ClientResponse, game_settings::GameSettings,
+    id::GameId,
+};
+use std::fmt::{self, Display};
 use std::fs;
 use std::io;
 use std::iter::Iterator;
@@ -7,6 +11,7 @@ use std::path::{Path, PathBuf};
 
 pub struct GameManager {
     games: Vec<Game>,
+    data_dir: PathBuf,
 }
 
 impl GameManager {
@@ -21,11 +26,12 @@ impl GameManager {
         let games: Vec<Game> = read_game_dirs(&game_data_path)?
             .iter()
             .filter_map(|dir| {
-                Game::load(&dir)
+                let id: GameId = dir.file_name().unwrap().to_string_lossy().to_string();
+                Game::load(&id, &dir)
                     .map_err(|err| {
                         println!(
                             "Cannot load game {}: {}",
-                            data_path.file_name().unwrap().to_string_lossy(),
+                            dir.file_name().unwrap().to_string_lossy(),
                             err
                         )
                     })
@@ -35,12 +41,45 @@ impl GameManager {
 
         println!("Loaded {} games", games.len());
 
-        Ok(GameManager { games })
+        Ok(GameManager {
+            games,
+            data_dir: game_data_path,
+        })
     }
 
-    pub fn create_game(&mut self, settings: &GameSettings) {
-        let game = Game::create(settings);
+    pub fn create_game(&mut self, settings: &GameSettings) -> Result<(), io::Error> {
+        let mut game_dir = PathBuf::from(&self.data_dir);
+        let game_id: GameId = settings.id.to_owned();
+        game_dir.push(&game_id);
+        let game = Game::create(&game_id, &game_dir, settings)?;
         self.games.push(game);
+        Ok(())
+    }
+
+    pub fn handle_message(
+        &mut self,
+        msg: &ClientMessage,
+    ) -> Result<ClientResponse, GameNotFoundError> {
+        let player_id = &msg.player_id;
+        let game_id = &msg.game_id;
+        let game = self
+            .games
+            .iter_mut()
+            .find(|g| g.id == *game_id)
+            .ok_or(GameNotFoundError {
+                game_id: game_id.clone(),
+            })?;
+        Ok(game.handle_message(&player_id, &msg.content))
+    }
+}
+
+pub struct GameNotFoundError {
+    game_id: GameId,
+}
+
+impl Display for GameNotFoundError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Game {} not found", self.game_id)
     }
 }
 

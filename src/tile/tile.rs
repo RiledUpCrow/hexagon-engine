@@ -3,7 +3,7 @@ use super::ground_type::GroundType;
 use super::side::Side;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Tile {
     pub ground_type: GroundType,

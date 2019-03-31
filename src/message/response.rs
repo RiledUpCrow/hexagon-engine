@@ -14,5 +14,6 @@ pub struct Response {
 pub enum ResponseContent {
     Register(RegisterData),
     Success,
+    Failure(String),
     ClientResponse(ClientResponse),
 }
