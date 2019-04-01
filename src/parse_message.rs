@@ -6,13 +6,13 @@ use super::message::{
 };
 use std::io::Error;
 
-pub fn parse_message(msg: &str, engine: &mut Engine) -> Result<String, Error> {
+pub fn parse_message(msg: &str, engine: &mut Engine) -> Result<Option<String>, Error> {
     let request = serde_json::from_str::<Request>(msg)?;
-    let data = request.content;
-    let response = match data {
+    let data = &request.content;
+    let response: Option<Response> = match data {
         RequestContent::Version(data) => {
             println!("Server version {}", &data.version);
-            Response {
+            Some(Response {
                 id: request.id,
                 content: ResponseContent::Register(RegisterData {
                     version: engine.version.clone(),
@@ -21,7 +21,7 @@ pub fn parse_message(msg: &str, engine: &mut Engine) -> Result<String, Error> {
                     admin_token: engine.identity.admin_token.to_owned(),
                     auth_token: engine.identity.auth_token.to_owned(),
                 }),
-            }
+            })
         }
         RequestContent::CreateGame(settings) => {
             println!("Creating a new game");
@@ -33,28 +33,29 @@ pub fn parse_message(msg: &str, engine: &mut Engine) -> Result<String, Error> {
                 println!("Cannot create new game: {}", error);
                 ResponseContent::Failure(format!("{}", error))
             };
-            Response {
+            Some(Response {
                 id: request.id,
                 content: response,
-            }
+            })
         }
         RequestContent::ClientMessage(client_msg) => {
             let res = engine.game_manager.handle_message(&client_msg);
             match res {
-                Ok(r) => Response {
+                Ok(Some(m)) => Some(Response {
                     id: request.id,
-                    content: ResponseContent::ClientResponse(r),
-                },
+                    content: ResponseContent::ClientResponse(m),
+                }),
+                Ok(None) => None,
                 Err(err) => {
                     println!("Cannot create new game: {}", err);
-                    Response {
+                    Some(Response {
                         id: request.id,
                         content: ResponseContent::Failure(format!("{}", err)),
-                    }
+                    })
                 }
             }
         }
     };
-    let response = serde_json::to_string(&response)?;
+    let response = response.map(|res| serde_json::to_string(&res).unwrap());
     Ok(response)
 }

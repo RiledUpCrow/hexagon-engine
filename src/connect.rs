@@ -27,14 +27,13 @@ pub fn connect(host: &str, engine: &mut Engine) -> Result<(), WebSocketError> {
             .filter_map(|message| match message {
                 OwnedMessage::Close(e) => Some(OwnedMessage::Close(e)),
                 OwnedMessage::Ping(d) => Some(OwnedMessage::Pong(d)),
-                OwnedMessage::Text(t) => Some(
-                    parse_message::parse_message(&t, engine)
-                        .map(|m| OwnedMessage::Text(m))
-                        .unwrap_or_else(|err| {
-                            dbg!(err);
-                            OwnedMessage::Text(String::from("{}"))
-                        }),
-                ),
+                OwnedMessage::Text(t) => parse_message::parse_message(&t, engine)
+                    .map(|m| m.map(|g| OwnedMessage::Text(g)))
+                    .unwrap_or_else(|err| {
+                        dbg!(err);
+                        Some(OwnedMessage::Text(String::from("{}")))
+                    }),
+
                 _ => None,
             })
             .select(stdin_ch.map_err(|_| WebSocketError::NoDataAvailable))

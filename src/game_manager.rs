@@ -59,7 +59,7 @@ impl GameManager {
     pub fn handle_message(
         &mut self,
         msg: &ClientMessage,
-    ) -> Result<ClientResponse, GameNotFoundError> {
+    ) -> Result<Option<ClientResponse>, GameNotFoundError> {
         let player_id = &msg.player_id;
         let game_id = &msg.game_id;
         let game = self
@@ -69,7 +69,7 @@ impl GameManager {
             .ok_or(GameNotFoundError {
                 game_id: game_id.clone(),
             })?;
-        Ok(game.handle_message(&player_id, &msg.content))
+        Ok(Some(game.handle_message(&player_id, &msg.content)))
     }
 }
 
