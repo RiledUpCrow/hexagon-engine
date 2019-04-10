@@ -1,5 +1,6 @@
 use super::client_message::ClientMessage;
 use super::game_settings::GameSettings;
+use super::id::GameId;
 use super::version_data::VersionData;
 use serde::Deserialize;
 
@@ -15,5 +16,6 @@ pub struct Request {
 pub enum RequestContent {
     Version(VersionData),
     CreateGame(GameSettings),
+    DeleteGame(GameId),
     ClientMessage(ClientMessage),
 }

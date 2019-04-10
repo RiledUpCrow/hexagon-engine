@@ -56,6 +56,24 @@ impl GameManager {
         Ok(())
     }
 
+    pub fn delete_game(&mut self, game_id: &GameId) -> Result<(), io::Error> {
+        let index = self
+            .games
+            .iter()
+            .position(|game| game.id == game_id.to_owned());
+        if index.is_none() {
+            return Ok(());
+        }
+        let index = index.unwrap();
+
+        let mut game_dir = PathBuf::from(&self.data_dir);
+        game_dir.push(&game_id);
+        fs::remove_dir_all(game_dir)?;
+
+        self.games.remove(index);
+        Ok(())
+    }
+
     pub fn handle_message(
         &mut self,
         msg: &ClientMessage,

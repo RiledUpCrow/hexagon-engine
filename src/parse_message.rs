@@ -38,6 +38,21 @@ pub fn parse_message(msg: &str, engine: &mut Engine) -> Result<Option<String>, E
                 content: response,
             })
         }
+        RequestContent::DeleteGame(game_id) => {
+            println!("Deleting game {}", game_id);
+            let result = engine.game_manager.delete_game(game_id);
+            let response = if result.is_ok() {
+                ResponseContent::Success
+            } else {
+                let error = result.err().unwrap();
+                println!("Cannot delete game {}: {}", game_id, error);
+                ResponseContent::Failure(format!("{}", error))
+            };
+            Some(Response {
+                id: request.id,
+                content: response,
+            })
+        }
         RequestContent::ClientMessage(client_msg) => {
             let res = engine.game_manager.handle_message(&client_msg);
             match res {
