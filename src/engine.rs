@@ -33,7 +33,7 @@ impl Engine {
                 }
             })??;
 
-        println!("Engine name: {}", &identity.name);
+        println!("Engine ID: {}", &identity.id);
         println!("Engine admin token: {}", &identity.admin_token);
 
         Ok(Engine {

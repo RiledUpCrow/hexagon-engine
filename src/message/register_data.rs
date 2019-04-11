@@ -4,7 +4,6 @@ use serde::Serialize;
 #[serde(rename_all = "camelCase")]
 pub struct RegisterData {
     pub version: String,
-    pub name: String,
     pub id: String,
     pub admin_token: String,
     pub auth_token: String,

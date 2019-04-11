@@ -16,7 +16,6 @@ pub fn parse_message(msg: &str, engine: &mut Engine) -> Result<Option<String>, E
                 id: request.id,
                 content: ResponseContent::Register(RegisterData {
                     version: engine.version.clone(),
-                    name: engine.identity.name.to_owned(),
                     id: engine.identity.id.to_owned(),
                     admin_token: engine.identity.admin_token.to_owned(),
                     auth_token: engine.identity.auth_token.to_owned(),
