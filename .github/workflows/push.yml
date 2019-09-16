@@ -42,4 +42,4 @@ jobs:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           USER: ${{ secrets.USER }}
         with:
-          args: ~/deploy-engine.sh
+          args: ~/the-world-anew/deploy-engine.sh
